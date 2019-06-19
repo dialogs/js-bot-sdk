@@ -2,12 +2,11 @@
  * Copyright 2018 Dialog LLC <info@dlg.im>
  */
 
-import Long from 'long';
 import { dialog } from '@dlghq/dialog-api';
-import { Group, OutPeer, Peer, User } from './entities';
+import { Group, OutPeer, Peer, User, PeerType } from './entities';
 import { Entities, PeerEntities, ResponseEntities } from './internal/types';
 import mapNotNull from './utils/mapNotNull';
-import PeerType from './entities/PeerType';
+import { PeerNotFoundError } from './errors';
 
 class State {
   public readonly self: User;
@@ -27,7 +26,7 @@ class State {
           return OutPeer.create(peer, user.accessHash);
         }
 
-        throw new Error(`User #${peer.id} unexpectedly not found`);
+        throw new PeerNotFoundError(peer, `User #${peer.id} unexpectedly not found`);
 
       case PeerType.GROUP:
         const group = this.groups.get(peer.id);
@@ -35,10 +34,10 @@ class State {
           return OutPeer.create(peer, group.accessHash);
         }
 
-        throw new Error(`Group #${peer.id} unexpectedly not found`);
+        throw new PeerNotFoundError(peer, `Group #${peer.id} unexpectedly not found`);
 
       default:
-        return OutPeer.create(peer, Long.ZERO);
+        throw new PeerNotFoundError(peer, `Unexpected peer type ${peer.type}`);
     }
   }
 
