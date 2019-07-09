@@ -22,7 +22,7 @@
     "@dlghq/dialog-api": "0.9.0",
     "@grpc/proto-loader": "0.5.1",
     "bluebird": "3.5.5",
-    "dataclass": "1.1.1",
+    "dataclass": "1.2.0",
     "grpc": "1.21.1",
     "jimp": "0.6.4",
     "lodash": "4.17.11",
