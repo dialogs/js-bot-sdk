@@ -3,8 +3,8 @@
  */
 
 import pino, { Logger, LoggerOptions } from 'pino';
-import { Observable, Subject, of, EMPTY, Subscription } from 'rxjs';
-import { flatMap, tap } from 'rxjs/operators';
+import { Observable, Subject, of, timer, EMPTY, Subscription } from 'rxjs';
+import { flatMap, tap, retryWhen, repeatWhen } from 'rxjs/operators';
 import { retryBackoff } from 'backoff-rxjs';
 import { dialog } from '@dlghq/dialog-api';
 import Rpc from './Rpc';
@@ -103,6 +103,12 @@ class Bot {
 
           return update;
         }),
+        tap({
+          error: (error) => this.logger.error(error),
+          complete: () => this.logger.warn('sequence stream completed'),
+        }),
+        retryWhen(() => timer(1000)),
+        repeatWhen(() => timer(1000)),
       )
       .subscribe(this.updateSubject);
 

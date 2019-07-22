@@ -4,8 +4,8 @@
 
 import { from } from 'rxjs';
 import { tap, flatMap } from 'rxjs/operators';
-import { testWithContext } from './test-utils';
-import context from './context';
+import { testWithContext } from './test-utils/test-utils';
+import context from './test-utils/context';
 
 testWithContext(
   'bot should be able manage parameters',

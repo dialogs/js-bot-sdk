@@ -15,7 +15,8 @@
     "prerelease": "npm run build",
     "release": "git push --follow-tags",
     "postrelease": "npm publish",
-    "format": "prettier --write */**/*.{ts,json,md}"
+    "format": "prettier --write */**/*.{ts,json,md}",
+    "generate-test-certs": "openssl req -x509 -newkey rsa:4096 -keyout src/__tests__/certs/self-signed-test-only.key -out src/__tests__/certs/self-signed-test-only.crt -subj '/CN=localhost' -nodes -days 36500"
   },
   "author": "Nikita Gusakov <gusnkt@gmail.com>",
   "license": "Apache-2.0",
@@ -55,6 +56,14 @@
     "ts-node": "8.3.0",
     "typedoc": "0.14.2",
     "typescript": "3.5.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib/",
+      "<rootDir>/src/__tests__/test-utils/"
+    ]
   },
   "gh-pages-deploy": {
     "staticpath": "docs"

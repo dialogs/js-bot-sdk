@@ -15,7 +15,7 @@ import {
 } from 'grpc';
 import createLogInterceptor from './interceptors/logger';
 
-const DEFAULT_DEADLINE = 30 * 1000;
+const DEFAULT_DEADLINE = 5 * 1000;
 
 export type MetadataGenerator = (serviceUrl: string) => Promise<Metadata>;
 

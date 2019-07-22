@@ -4,8 +4,8 @@
 
 import { combineLatest } from 'rxjs';
 import { tap, filter, take } from 'rxjs/operators';
-import { testWithContext } from './test-utils';
-import context from './context';
+import { testWithContext } from './test-utils/test-utils';
+import context from './test-utils/context';
 
 testWithContext(
   'bot2 should receive message from bot1',

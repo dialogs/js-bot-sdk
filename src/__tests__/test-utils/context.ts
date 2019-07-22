@@ -2,25 +2,16 @@
  * Copyright 2018 Dialog LLC <info@dlg.im>
  */
 
-import dotenv from 'dotenv';
-import Bot, { Peer } from '../index';
+import Bot, { Peer } from '../../index';
+import parseTestEnv from './parseTestEnv';
 import { beforeAllWithContext, afterAllWithContext } from './test-utils';
 
 const context = beforeAllWithContext(async () => {
-  dotenv.config();
+  const env = parseTestEnv();
 
-  const env = (name: string): string => {
-    const value = process.env[name];
-    if (value) {
-      return value;
-    }
-
-    throw new Error(`${name} env variable not defined`);
-  };
-
-  const endpoints = [env('BOT_ENDPOINT')];
-  const bot1 = new Bot({ endpoints, token: env('BOT_TOKEN_FIRST') });
-  const bot2 = new Bot({ endpoints, token: env('BOT_TOKEN_SECOND') });
+  const endpoints = [env.endpoint];
+  const bot1 = new Bot({ endpoints, token: env.firstBotToken });
+  const bot2 = new Bot({ endpoints, token: env.secondBotToken });
 
   const bot2Self = await bot2.getSelf();
   if (!bot2Self.nick) {

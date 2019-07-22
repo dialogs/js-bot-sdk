@@ -2,18 +2,39 @@
  * Copyright 2018 Dialog LLC <info@dlg.im>
  */
 
+import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import { credentials, ServerCredentials } from 'grpc';
 import Bot, { MessageAttachment, ActionGroup, Action, Button } from '../src';
 import { flatMap } from 'rxjs/operators';
 import { combineLatest, merge } from 'rxjs';
+import createProxy from '../src/__tests__/test-utils/grpc-proxy';
 
 dotenv.config();
 
 async function run(token: string, endpoint: string) {
+  const certsDir = path.resolve(__dirname, '../src/__tests__/certs');
+  const privateKey = fs.readFileSync(
+    path.resolve(certsDir, 'self-signed-test-only.key'),
+  );
+  const certChain = fs.readFileSync(
+    path.resolve(certsDir, 'self-signed-test-only.crt'),
+  );
+
+  const proxy = createProxy({
+    target: endpoint,
+    listen: 'localhost:3000',
+    listenCredentials: ServerCredentials.createSsl(null, [
+      { private_key: privateKey, cert_chain: certChain },
+    ]),
+  });
+  await proxy.start();
+
   const bot = new Bot({
     token,
-    endpoints: [endpoint],
+    ssl: { rootCerts: certChain },
+    endpoints: ['https://localhost:3000'],
     loggerOptions: {
       name: 'example-bot',
       level: 'trace',
