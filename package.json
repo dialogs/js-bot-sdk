@@ -40,7 +40,7 @@
     "@types/dotenv": "6.1.1",
     "@types/jest": "24.0.15",
     "@types/long": "4.0.0",
-    "@types/node-fetch": "2.3.7",
+    "@types/node-fetch": "2.5.0",
     "@types/pino": "5.8.8",
     "@types/uuid": "3.4.5",
     "buildbranch": "2.0.1",
