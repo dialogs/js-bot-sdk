@@ -38,7 +38,7 @@
   "devDependencies": {
     "@types/bluebird": "3.5.27",
     "@types/dotenv": "6.1.1",
-    "@types/jest": "24.0.15",
+    "@types/jest": "24.0.16",
     "@types/long": "4.0.0",
     "@types/node-fetch": "2.5.0",
     "@types/pino": "5.8.8",
