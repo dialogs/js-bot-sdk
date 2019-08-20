@@ -38,7 +38,7 @@
     "pino": "5.13.2",
     "pino-pretty": "3.2.1",
     "rxjs": "6.5.2",
-    "uuid": "3.3.2"
+    "uuid": "3.3.3"
   },
   "devDependencies": {
     "@types/dotenv": "6.1.1",
