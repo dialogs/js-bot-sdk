@@ -30,7 +30,7 @@
     "backoff-rxjs": "6.3.2",
     "bluebird": "3.5.5",
     "dataclass": "1.2.0",
-    "grpc": "1.22.2",
+    "grpc": "1.23.1",
     "jimp": "0.6.4",
     "lodash": "4.17.15",
     "mime": "2.4.4",
