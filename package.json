@@ -21,7 +21,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@dlghq/dialog-api": "0.10.2",
-    "@grpc/proto-loader": "0.5.1",
+    "@grpc/proto-loader": "0.5.2",
     "@types/bluebird": "3.5.27",
     "@types/long": "4.0.0",
     "@types/node-fetch": "2.5.0",
