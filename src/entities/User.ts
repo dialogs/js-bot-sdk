@@ -6,6 +6,7 @@ import Long from 'long';
 import Record from 'dataclass';
 import { dialog } from '@dlghq/dialog-api';
 import { getOpt } from './utils';
+import Peer from './Peer';
 
 class User extends Record<User> {
   id: number = -1;

@@ -3,7 +3,9 @@
  */
 
 import { Config } from './Service';
+import Users from './Users';
 import Groups from './Groups';
+import Search from './Search';
 import Contacts from './Contacts';
 import Messaging from './Messaging';
 import Parameters from './Parameters';
@@ -11,8 +13,11 @@ import Registration from './Registration';
 import MediaAndFiles from './MediaAndFiles';
 import Authentication from './Authentication';
 import SequenceAndUpdates from './SequenceAndUpdates';
+
 class Services {
+  public readonly users: Users;
   public readonly groups: Groups;
+  public readonly search: Search;
   public readonly contacts: Contacts;
   public readonly messaging: Messaging;
   public readonly parameters: Parameters;
@@ -22,7 +27,9 @@ class Services {
   public readonly sequenceAndUpdates: SequenceAndUpdates;
 
   constructor(config: Config) {
+    this.users = new Users(config);
     this.groups = new Groups(config);
+    this.search = new Search(config);
     this.contacts = new Contacts(config);
     this.messaging = new Messaging(config);
     this.parameters = new Parameters(config);
@@ -33,7 +40,9 @@ class Services {
   }
 
   public close() {
+    this.users.close();
     this.groups.close();
+    this.search.close();
     this.contacts.close();
     this.messaging.close();
     this.parameters.close();

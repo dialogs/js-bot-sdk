@@ -21,6 +21,17 @@ class Groups extends Service<any> {
       this.getCallOptions(),
     );
   }
+
+  createGroup(
+    request: dialog.RequestCreateGroup,
+    metadata?: Metadata,
+  ): Promise<dialog.ResponseCreateGroup> {
+    return this.service.createGroupAsync(
+      request,
+      metadata,
+      this.getCallOptions(),
+    );
+  }
 }
 
 export default Groups;

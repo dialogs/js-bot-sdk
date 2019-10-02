@@ -2,6 +2,7 @@
  * Copyright 2018 Dialog LLC <info@dlg.im>
  */
 
+import Long from 'long';
 import pino, { Logger, LoggerOptions } from 'pino';
 import { Observable, Subject, of, EMPTY, Subscription } from 'rxjs';
 import { flatMap, tap } from 'rxjs/operators';
@@ -30,7 +31,15 @@ import createImagePreview from './utils/createImagePreview';
 import normalizeArray from './utils/normalizeArray';
 import DeletedContent from './entities/messaging/content/DeletedContent';
 import { SSLConfig } from './utils/createCredentials';
-import { PeerNotFoundError } from './errors';
+import FullUser from './entities/FullUser';
+import HistoryListMode from './entities/HistoryListMode';
+import {
+  PrivateChannelType,
+  PrivateGroupType,
+  PublicChannelType,
+  PublicGroupType,
+  UnknownGroupType,
+} from './entities/GroupType';
 
 type Config = {
   token: Token;
@@ -238,6 +247,12 @@ class Bot {
     return this.rpc.editMessage(mid, content);
   }
 
+  public async readMessages(peer: Peer, since?: Long): Promise<void> {
+    const state = await this.ready;
+    const outPeer = state.createOutPeer(peer);
+    return this.rpc.readMessages(outPeer, since);
+  }
+
   /**
    * Edits text message.
    */
@@ -317,6 +332,17 @@ class Bot {
     return messages.map(HistoryMessage.from);
   }
 
+  public async loadHistory(
+    peer: Peer,
+    date = Long.fromValue(0),
+    direction = HistoryListMode.FORWARD,
+    limit = 2,
+  ): Promise<Array<HistoryMessage>> {
+    const state = await this.ready;
+    const outPeer = state.createOutPeer(peer);
+    return this.rpc.loadHistory(outPeer, date, direction, limit);
+  }
+
   /**
    * Finds user by nick.
    */
@@ -350,6 +376,58 @@ class Bot {
     await this.rpc.editParameter(key, value);
 
     state.parameters.set(key, value);
+  }
+
+  public async createGroup(
+    title: string,
+    type:
+      | PublicGroupType
+      | PrivateGroupType
+      | PublicChannelType
+      | PrivateChannelType
+      | UnknownGroupType,
+  ): Promise<Group | null> {
+    return this.rpc.createGroup(title, type);
+  }
+
+  public async findGroupByShortname(query: string): Promise<Group | null> {
+    const state = await this.ready;
+    const uids = await this.applyEntities(
+      state,
+      await this.rpc.searchContacts(query),
+    );
+
+    const lowerNick = query.toLowerCase();
+    for (let id of uids) {
+      const group = state.groups.get(id);
+      if (
+        group &&
+        group.data &&
+        group.data.type &&
+        (group.data.type instanceof PublicGroupType ||
+          group.data.type instanceof PublicChannelType) &&
+        lowerNick === group.data.type.shortname
+      ) {
+        return group;
+      }
+    }
+    return null;
+  }
+
+  public async userFullProfile(peer: Peer): Promise<FullUser | null> {
+    const state = await this.ready;
+    const outPeer = state.createOutPeer(peer);
+    return this.rpc.userFullProfile(outPeer);
+  }
+
+  public async userCustomProfile(peer: Peer): Promise<string> {
+    const fullProfile = await this.userFullProfile(peer);
+    if (fullProfile !== null) {
+      if (fullProfile.customProfile !== null) {
+        return fullProfile.customProfile;
+      }
+    }
+    return '';
   }
 }
 

@@ -4,6 +4,7 @@
 
 import fs from 'fs';
 import _ from 'lodash';
+import Long from 'long';
 import { Logger } from 'pino';
 import Bluebird from 'bluebird';
 import { Metadata } from 'grpc';
@@ -14,13 +15,15 @@ import mapNotNull from './utils/mapNotNull';
 import reduce from './utils/reduce';
 import { Entities, PeerEntities, ResponseEntities } from './internal/types';
 import { Observable, from } from 'rxjs';
-import { flatMap, last, map } from 'rxjs/operators';
+import { flatMap, last, map, windowCount } from 'rxjs/operators';
 import {
   Content,
   OutPeer,
   FileLocation,
   GroupMember,
   GroupOutPeer,
+  HistoryMessage,
+  Group,
 } from './entities';
 import MessageAttachment from './entities/messaging/MessageAttachment';
 import { contentToApi } from './entities/messaging/content';
@@ -29,6 +32,17 @@ import randomLong from './utils/randomLong';
 import fromReadStream from './utils/fromReadStream';
 import UUID from './entities/UUID';
 import { getOpt } from './entities/utils';
+import FullUser from './entities/FullUser';
+import HistoryListMode, {
+  historyListModeToApi,
+} from './entities/HistoryListMode';
+import {
+  PrivateChannelType,
+  PrivateGroupType,
+  PublicChannelType,
+  PublicGroupType,
+  UnknownGroupType,
+} from './entities/GroupType';
 
 const pkg = require('../package.json');
 
@@ -310,6 +324,15 @@ class Rpc extends Services {
     );
   }
 
+  async readMessages(peer: OutPeer, date = Long.fromValue(0)) {
+    await this.messaging.readMessage(
+      dialog.RequestMessageRead.create({
+        peer: peer.toApi(),
+        date: date,
+      }),
+    );
+  }
+
   async uploadFile(
     fileName: string,
     fileInfo: FileInfo,
@@ -393,6 +416,25 @@ class Rpc extends Services {
     };
   }
 
+  async loadHistory(
+    peer: OutPeer,
+    date: Long,
+    direction: HistoryListMode,
+    limit: number,
+  ): Promise<Array<HistoryMessage>> {
+    const history = await this.messaging.loadHistory(
+      dialog.RequestLoadHistory.create({
+        peer: peer.toApi(),
+        date: date,
+        loadMode: historyListModeToApi(direction),
+        limit: limit,
+      }),
+    );
+    const result = history.history.map(HistoryMessage.from);
+
+    return result;
+  }
+
   async searchContacts(nick: string): Promise<ResponseEntities<Array<number>>> {
     const res = await this.contacts.searchContacts(
       dialog.RequestSearchContacts.create({ request: nick }),
@@ -403,6 +445,26 @@ class Rpc extends Services {
       userPeers: res.userPeers,
       groupPeers: [],
     };
+  }
+
+  async userFullProfile(peer: OutPeer): Promise<FullUser | null> {
+    const userOutPeer = dialog.UserOutPeer.create({
+      uid: peer.peer.id,
+      accessHash: peer.accessHash,
+    });
+    const fullUsersApi = await this.users.loadFullUsers(
+      dialog.RequestLoadFullUsers.create({
+        userPeers: Array(userOutPeer),
+      }),
+    );
+    if (fullUsersApi !== null) {
+      if (fullUsersApi.fullUsers.length > 0) {
+        return fullUsersApi.fullUsers[0]
+          ? FullUser.from(fullUsersApi.fullUsers[0])
+          : null;
+      }
+    }
+    return null;
   }
 
   async getParameters(): Promise<Map<string, string>> {
@@ -423,6 +485,42 @@ class Rpc extends Services {
         value: google.protobuf.StringValue.create({ value }),
       }),
     );
+  }
+
+  async createGroup(
+    title: string,
+    type:
+      | PublicGroupType
+      | PrivateGroupType
+      | PublicChannelType
+      | PrivateChannelType
+      | UnknownGroupType,
+  ): Promise<Group | null> {
+    let shortname = null;
+    if (type instanceof PublicGroupType || type instanceof PublicChannelType) {
+      shortname = type.shortname;
+    }
+
+    let groupType = null;
+    if (type instanceof PrivateGroupType || type instanceof PublicGroupType) {
+      groupType = dialog.GroupType.GROUPTYPE_GROUP;
+    } else if (type instanceof UnknownGroupType) {
+      groupType = dialog.GroupType.GROUPTYPE_UNKNOWN;
+    } else {
+      groupType = dialog.GroupType.GROUPTYPE_CHANNEL;
+    }
+
+    const response = await this.groups.createGroup(
+      dialog.RequestCreateGroup.create({
+        title: title,
+        username: google.protobuf.StringValue.create({ value: shortname }),
+        groupType: groupType,
+      }),
+    );
+    if (response.group !== null && response.group !== undefined) {
+      return Group.from(response.group);
+    }
+    return null;
   }
 }
 
