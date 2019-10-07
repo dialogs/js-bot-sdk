@@ -45,7 +45,7 @@
     "@types/jest": "24.0.18",
     "buildbranch": "2.0.1",
     "dotenv": "8.1.0",
-    "husky": "3.0.7",
+    "husky": "3.0.8",
     "jest": "24.9.0",
     "jest-junit": "8.0.0",
     "lint-staged": "9.4.0",
