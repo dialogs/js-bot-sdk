@@ -28,7 +28,7 @@
     "@types/pino": "5.8.10",
     "@types/uuid": "3.4.5",
     "backoff-rxjs": "6.3.2",
-    "bluebird": "3.5.5",
+    "bluebird": "3.7.0",
     "dataclass": "1.2.0",
     "grpc": "1.24.0",
     "jimp": "0.8.4",
