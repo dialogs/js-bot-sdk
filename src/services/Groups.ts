@@ -14,10 +14,12 @@ class Groups extends Service<any> {
   createNewGroup(
     request: dialog.RequestCreateGroup,
     metadata?: Metadata,
-    callback: Function = () => {},
   ): Promise<dialog.ResponseCreateGroup> {
-    const options = this.getCallOptions();
-    return this.service.createGroup(request, metadata, options, callback);
+    return this.service.createGroupAsync(
+      request,
+      metadata,
+      this.getCallOptions(),
+    );
   }
 }
 

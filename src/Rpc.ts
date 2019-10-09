@@ -265,7 +265,7 @@ class Rpc extends Services {
       users,
       groupType: dialog.GroupType.GROUPTYPE_GROUP,
     });
-    await this.groupsService.createNewGroup(request);
+    return await this.groupsService.createNewGroup(request);
   }
 
   async uploadFile(
