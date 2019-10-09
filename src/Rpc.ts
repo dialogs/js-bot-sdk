@@ -259,6 +259,15 @@ class Rpc extends Services {
     );
   }
 
+  async createGroup(users: Array<dialog.UserOutPeer>, title: string) {
+    const request = dialog.RequestCreateGroup.create({
+      title,
+      users,
+      groupType: dialog.GroupType.GROUPTYPE_GROUP,
+    });
+    await this.groupsService.createNewGroup(request);
+  }
+
   async uploadFile(
     fileName: string,
     fileInfo: FileInfo,

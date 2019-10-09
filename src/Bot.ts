@@ -318,6 +318,15 @@ class Bot {
 
     state.parameters.set(key, value);
   }
+
+  public async createGroup(users: Array<User>, title: string): Promise<void> {
+    await this.ready;
+    const outOfPeerUsers = users.map((user) => {
+      const { id, accessHash } = User.from(user);
+      return new dialog.UserOutPeer({ uid: id, accessHash });
+    });
+    await this.rpc.createGroup(outOfPeerUsers, title);
+  }
 }
 
 export default Bot;
