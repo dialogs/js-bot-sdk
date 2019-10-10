@@ -3,15 +3,11 @@
  */
 
 import { Peer } from '../entities';
+import EntityNotFoundError from './EntityNotFoundError';
 
-class PeerNotFoundError extends Error {
-  readonly name = 'PeerNotFoundError';
-  readonly peer: Peer;
-
+class PeerNotFoundError extends EntityNotFoundError<Peer> {
   constructor(peer: Peer) {
-    super(`${peer} unexpectedly not found`);
-
-    this.peer = peer;
+    super(peer);
   }
 }
 

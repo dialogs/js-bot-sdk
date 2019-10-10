@@ -3,5 +3,7 @@
  */
 
 import PeerNotFoundError from './PeerNotFoundError';
+import UnexpectedApiError from './UnexpectedApiError';
+import EntityNotFoundError from './EntityNotFoundError';
 
-export { PeerNotFoundError };
+export { PeerNotFoundError, UnexpectedApiError, EntityNotFoundError };

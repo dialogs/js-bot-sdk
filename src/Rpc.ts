@@ -4,7 +4,6 @@
 
 import fs from 'fs';
 import _ from 'lodash';
-import Long from 'long';
 import { Logger } from 'pino';
 import Bluebird from 'bluebird';
 import { Metadata } from 'grpc';
@@ -15,34 +14,30 @@ import mapNotNull from './utils/mapNotNull';
 import reduce from './utils/reduce';
 import { Entities, PeerEntities, ResponseEntities } from './internal/types';
 import { Observable, from } from 'rxjs';
-import { flatMap, last, map, windowCount } from 'rxjs/operators';
+import { flatMap, last, map } from 'rxjs/operators';
 import {
+  UUID,
   Content,
   OutPeer,
+  UserOutPeer,
+  GroupOutPeer,
   FileLocation,
   GroupMember,
-  GroupOutPeer,
   HistoryMessage,
   Group,
+  MessageAttachment,
+  GroupType,
+  FullUser,
+  HistoryListMode,
+  Peer,
 } from './entities';
-import MessageAttachment from './entities/messaging/MessageAttachment';
 import { contentToApi } from './entities/messaging/content';
 import { FileInfo } from './utils/getFileInfo';
 import randomLong from './utils/randomLong';
 import fromReadStream from './utils/fromReadStream';
-import UUID from './entities/UUID';
-import { getOpt } from './entities/utils';
-import FullUser from './entities/FullUser';
-import HistoryListMode, {
-  historyListModeToApi,
-} from './entities/HistoryListMode';
-import {
-  PrivateChannelType,
-  PrivateGroupType,
-  PublicChannelType,
-  PublicGroupType,
-  UnknownGroupType,
-} from './entities/GroupType';
+import { getOpt, longFromDate } from './entities/utils';
+import { historyListModeToApi } from './entities/messaging/HistoryListMode';
+import { UnexpectedApiError } from './errors';
 
 const pkg = require('../package.json');
 
@@ -99,7 +94,7 @@ class Rpc extends Services {
       : this.authorizeByUsernameAndPassword(token.username, token.password));
 
     if (!res.user) {
-      throw new Error('Unexpected behaviour');
+      throw new UnexpectedApiError('user');
     }
 
     return res.user;
@@ -224,8 +219,6 @@ class Rpc extends Services {
 
     return {
       payload,
-      userPeers: [],
-      groupPeers: [],
       groupMembersSubset: dialog.GroupMembersSubset.create({
         groupPeer: peer.toApi(),
         memberIds: payload.map(({ userId }) => userId),
@@ -286,7 +279,7 @@ class Rpc extends Services {
           return unboxedUpdate;
         }
 
-        throw new Error('Unexpected behaviour');
+        throw new UnexpectedApiError('unboxedUpdate');
       }),
     );
   }
@@ -309,7 +302,7 @@ class Rpc extends Services {
     );
 
     if (!res.messageId) {
-      throw new Error('Unexpected behaviour');
+      throw new UnexpectedApiError('messageId');
     }
 
     return UUID.from(res.messageId);
@@ -324,11 +317,11 @@ class Rpc extends Services {
     );
   }
 
-  async readMessages(peer: OutPeer, date = Long.fromValue(0)) {
+  async readMessages(peer: OutPeer, since: Date) {
     await this.messaging.readMessage(
       dialog.RequestMessageRead.create({
         peer: peer.toApi(),
-        date: date,
+        date: longFromDate(since),
       }),
     );
   }
@@ -372,7 +365,7 @@ class Rpc extends Services {
           );
 
           if (!uploadedFileLocation) {
-            throw new Error('File unexpectedly failed');
+            throw new UnexpectedApiError('uploadedFileLocation');
           }
 
           return uploadedFileLocation;
@@ -393,9 +386,7 @@ class Rpc extends Services {
       return url.url;
     }
 
-    throw new Error(
-      `Unexpectedly failed to resolve file url for ${fileLocation.id}`,
-    );
+    throw new UnexpectedApiError('fileUrls');
   }
 
   async fetchMessages(
@@ -418,14 +409,14 @@ class Rpc extends Services {
 
   async loadHistory(
     peer: OutPeer,
-    date: Long,
+    since: Date | null,
     direction: HistoryListMode,
     limit: number,
   ): Promise<Array<HistoryMessage>> {
     const history = await this.messaging.loadHistory(
       dialog.RequestLoadHistory.create({
         peer: peer.toApi(),
-        date: date,
+        date: longFromDate(since),
         loadMode: historyListModeToApi(direction),
         limit: limit,
       }),
@@ -435,36 +426,27 @@ class Rpc extends Services {
     return result;
   }
 
-  async searchContacts(nick: string): Promise<ResponseEntities<Array<number>>> {
-    const res = await this.contacts.searchContacts(
-      dialog.RequestSearchContacts.create({ request: nick }),
+  async resolvePeer(
+    nickOrShortName: string,
+  ): Promise<ResponseEntities<Peer | null>> {
+    const { peer } = await this.search.resolvePeer(
+      dialog.RequestResolvePeer.create({ shortname: nickOrShortName }),
     );
 
     return {
-      payload: res.userPeers.map((p) => p.uid),
-      userPeers: res.userPeers,
-      groupPeers: [],
+      payload: peer ? Peer.from(peer) : null,
+      peers: peer ? [peer] : undefined,
     };
   }
 
-  async userFullProfile(peer: OutPeer): Promise<FullUser | null> {
-    const userOutPeer = dialog.UserOutPeer.create({
-      uid: peer.peer.id,
-      accessHash: peer.accessHash,
-    });
-    const fullUsersApi = await this.users.loadFullUsers(
+  async loadFullUser(peer: UserOutPeer): Promise<FullUser | null> {
+    const { fullUsers } = await this.users.loadFullUsers(
       dialog.RequestLoadFullUsers.create({
-        userPeers: Array(userOutPeer),
+        userPeers: [peer.toApi()],
       }),
     );
-    if (fullUsersApi !== null) {
-      if (fullUsersApi.fullUsers.length > 0) {
-        return fullUsersApi.fullUsers[0]
-          ? FullUser.from(fullUsersApi.fullUsers[0])
-          : null;
-      }
-    }
-    return null;
+
+    return _.head(fullUsers.map(FullUser.from)) || null;
   }
 
   async getParameters(): Promise<Map<string, string>> {
@@ -489,38 +471,25 @@ class Rpc extends Services {
 
   async createGroup(
     title: string,
-    type:
-      | PublicGroupType
-      | PrivateGroupType
-      | PublicChannelType
-      | PrivateChannelType
-      | UnknownGroupType,
-  ): Promise<Group | null> {
-    let shortname = null;
-    if (type instanceof PublicGroupType || type instanceof PublicChannelType) {
-      shortname = type.shortname;
-    }
-
-    let groupType = null;
-    if (type instanceof PrivateGroupType || type instanceof PublicGroupType) {
-      groupType = dialog.GroupType.GROUPTYPE_GROUP;
-    } else if (type instanceof UnknownGroupType) {
-      groupType = dialog.GroupType.GROUPTYPE_UNKNOWN;
-    } else {
-      groupType = dialog.GroupType.GROUPTYPE_CHANNEL;
-    }
-
-    const response = await this.groups.createGroup(
+    type: GroupType,
+  ): Promise<ResponseEntities<Group>> {
+    const { type: groupType, shortname } = type.toApi();
+    const { group, userPeers } = await this.groups.createGroup(
       dialog.RequestCreateGroup.create({
-        title: title,
+        title,
+        groupType,
         username: google.protobuf.StringValue.create({ value: shortname }),
-        groupType: groupType,
       }),
     );
-    if (response.group !== null && response.group !== undefined) {
-      return Group.from(response.group);
+
+    if (!group) {
+      throw new UnexpectedApiError('group');
     }
-    return null;
+
+    return {
+      userPeers,
+      payload: Group.from(group),
+    };
   }
 }
 

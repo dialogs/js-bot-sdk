@@ -3,14 +3,11 @@
  */
 
 import Message from './Message';
-import MessageAttachment from './MessageAttachment';
 import HistoryMessage from './HistoryMessage';
+import HistoryListMode from './HistoryListMode';
+import MessageAttachment from './MessageAttachment';
 
-export {
-  Message,
-  HistoryMessage,
-  MessageAttachment
-};
+export { Message, HistoryMessage, HistoryListMode, MessageAttachment };
 
 export * from './content';
 export * from './interactive';

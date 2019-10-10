@@ -3,11 +3,11 @@
  */
 
 import { dialog } from '@dlghq/dialog-api';
-import Clock from './Clock';
+import Clock from '../Clock';
 import GroupMemberPermission, {
   groupPermissionFromApi,
 } from './GroupMemberPermission';
-import { dateFromLong, dateFromTimestamp } from './utils';
+import { dateFromLong, dateFromTimestamp } from '../utils';
 
 class GroupMember {
   public readonly clock: Clock;

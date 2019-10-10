@@ -4,9 +4,9 @@
 
 import Long from 'long';
 import { dialog } from '@dlghq/dialog-api';
-import { getOpt, dateFromTimestamp } from './utils';
-import UUID from './UUID';
-import Avatar from './Avatar';
+import { getOpt, dateFromTimestamp } from '../utils';
+import UUID from '../UUID';
+import Avatar from '../Avatar';
 import { GroupType } from './GroupType';
 
 class GroupData {

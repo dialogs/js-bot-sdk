@@ -46,3 +46,11 @@ export function dateFromTimestamp(ts?: google.protobuf.Timestamp | null): Date {
 
   return new Date(secondsMs + nanosMs);
 }
+
+export function longFromDate(date?: Date | null): Long {
+  if (!date) {
+    return Long.ZERO;
+  }
+
+  return Long.fromNumber(date.getTime());
+}

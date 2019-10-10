@@ -87,6 +87,7 @@ class State {
   }
 
   applyResponseEntities({
+    peers,
     users,
     groups,
     userPeers,
@@ -95,9 +96,39 @@ class State {
   }: ResponseEntities<any>): PeerEntities {
     this.applyEntities({ users: users || [], groups: groups || [] });
 
+    const filteredUsers = userPeers
+      ? userPeers.filter((peer) => !this.users.has(peer.uid))
+      : [];
+    const filteredGroups = groupPeers
+      ? groupPeers.filter((peer) => !this.groups.has(peer.groupId))
+      : [];
+
+    if (peers) {
+      peers.forEach((peer) => {
+        switch (peer.type) {
+          case dialog.PeerType.PEERTYPE_PRIVATE:
+            filteredUsers.push(
+              dialog.UserOutPeer.create({
+                uid: peer.id,
+                accessHash: peer.accessHash,
+              }),
+            );
+            break;
+          case dialog.PeerType.PEERTYPE_GROUP:
+            filteredGroups.push(
+              dialog.GroupOutPeer.create({
+                groupId: peer.id,
+                accessHash: peer.accessHash,
+              }),
+            );
+            break;
+        }
+      });
+    }
+
     return {
-      users: userPeers.filter((peer) => !this.users.has(peer.uid)),
-      groups: groupPeers.filter((peer) => !this.groups.has(peer.groupId)),
+      users: filteredUsers,
+      groups: filteredGroups,
       groupMembersSubset:
         groupMembersSubset &&
         dialog.GroupMembersSubset.create({

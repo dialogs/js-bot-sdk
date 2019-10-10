@@ -11,11 +11,11 @@ class Search extends Service<any> {
     super(dialog.Search, config);
   }
 
-  peerSearch(
-    request: dialog.RequestPeerSearch,
+  resolvePeer(
+    request: dialog.RequestResolvePeer,
     metadata?: Metadata,
-  ): Promise<dialog.ResponsePeerSearch> {
-    return this.service.peerSearchAsync(
+  ): Promise<dialog.ResponseResolvePeer> {
+    return this.service.resolvePeerAsync(
       request,
       metadata,
       this.getCallOptions(),

@@ -1,5 +1,8 @@
+/*
+ * Copyright 2018 Dialog LLC <info@dlg.im>
+ */
+
 import { dialog } from '@dlghq/dialog-api/js';
-import PeerType from './PeerType';
 
 enum HistoryListMode {
   UNKNOWN = 'unknown',
