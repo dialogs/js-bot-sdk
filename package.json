@@ -22,7 +22,7 @@
   "dependencies": {
     "@dlghq/dialog-api": "1.5.0",
     "@grpc/proto-loader": "0.5.2",
-    "@types/bluebird": "3.5.27",
+    "@types/bluebird": "3.5.28",
     "@types/long": "4.0.0",
     "@types/node-fetch": "2.5.2",
     "@types/pino": "5.8.11",
