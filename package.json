@@ -31,7 +31,7 @@
     "bluebird": "3.7.1",
     "dataclass": "1.2.0",
     "grpc": "1.24.0",
-    "jimp": "0.8.4",
+    "jimp": "0.8.5",
     "lodash": "4.17.15",
     "mime": "2.4.4",
     "node-fetch": "2.6.0",
