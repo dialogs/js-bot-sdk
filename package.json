@@ -24,7 +24,7 @@
     "@grpc/proto-loader": "0.5.2",
     "@types/bluebird": "3.5.28",
     "@types/long": "4.0.0",
-    "@types/node-fetch": "2.5.2",
+    "@types/node-fetch": "2.5.4",
     "@types/pino": "5.8.12",
     "@types/uuid": "3.4.5",
     "backoff-rxjs": "6.3.2",
