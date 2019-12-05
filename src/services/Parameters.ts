@@ -5,12 +5,14 @@
 import { Metadata } from 'grpc';
 import { dialog } from '@dlghq/dialog-api';
 import Service, { Config } from './Service';
+import { TryCatchWrapper } from '../entities/utils';
 
 class Parameters extends Service<any> {
   constructor(config: Config) {
     super(dialog.ConfigSync, config);
   }
 
+  @TryCatchWrapper
   getParameters(
     request: dialog.RequestGetParameters,
     metadata?: Metadata,
@@ -22,6 +24,7 @@ class Parameters extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   editParameter(
     request: dialog.RequestEditParameter,
     metadata?: Metadata,

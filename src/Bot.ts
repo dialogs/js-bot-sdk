@@ -52,6 +52,7 @@ type Config = {
   endpoints: Array<string>;
   ssl?: SSLConfig;
   loggerOptions?: LoggerOptions;
+  retryOptions?: Map<string, number>;
 };
 
 class Bot {
@@ -78,6 +79,7 @@ class Bot {
       endpoint,
       ssl: config.ssl,
       logger: this.logger,
+      retryOptions: config.retryOptions,
     });
 
     this.ready = this.start(config.token);

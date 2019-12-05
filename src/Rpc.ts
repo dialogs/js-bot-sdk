@@ -52,17 +52,19 @@ type Config = {
   ssl?: SSLConfig;
   logger: Logger;
   endpoint: URL;
+  retryOptions?: Map<string, number>;
 };
 
 class Rpc extends Services {
   private metadata: null | Promise<Metadata> = null;
 
-  constructor({ ssl, logger, endpoint }: Config) {
+  constructor({ ssl, logger, endpoint, retryOptions }: Config) {
     super({
       logger,
       endpoint: endpoint.host,
       credentials: createCredentials(endpoint, ssl),
       generateMetadata: () => this.getMetadata(),
+      retryOptions: retryOptions,
     });
   }
 

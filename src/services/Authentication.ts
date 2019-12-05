@@ -5,12 +5,14 @@
 import { Metadata } from 'grpc';
 import { dialog } from '@dlghq/dialog-api';
 import Service, { Config } from './Service';
+import { TryCatchWrapper } from '../entities/utils';
 
 class Authentication extends Service<any> {
   constructor(config: Config) {
     super(dialog.Authentication, config);
   }
 
+  @TryCatchWrapper
   startTokenAuth(
     request: dialog.RequestStartTokenAuth,
     metadata?: Metadata,
@@ -22,6 +24,7 @@ class Authentication extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   startUsernameAuth(
     request: dialog.RequestStartUsernameAuth,
     metadata?: Metadata,
@@ -34,6 +37,7 @@ class Authentication extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   validatePassword(
     request: dialog.RequestValidatePassword,
     metadata?: Metadata,

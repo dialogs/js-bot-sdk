@@ -7,6 +7,7 @@ import { dialog, google } from '@dlghq/dialog-api';
 import { Observable, Subscriber, from } from 'rxjs';
 import Service, { Config } from './Service';
 import { map, flatMap } from 'rxjs/operators';
+import { TryCatchWrapper } from '../entities/utils';
 
 class SequenceAndUpdates extends Service<any> {
   private readonly config: Config;
@@ -16,6 +17,7 @@ class SequenceAndUpdates extends Service<any> {
     this.config = config;
   }
 
+  @TryCatchWrapper
   public getState(
     request: dialog.RequestGetState,
     metadata?: Metadata,
@@ -23,6 +25,7 @@ class SequenceAndUpdates extends Service<any> {
     return this.service.getStateAsync(request, metadata, this.getCallOptions());
   }
 
+  @TryCatchWrapper
   public getDifference(
     request: dialog.RequestGetDifference,
     metadata?: Metadata,
@@ -34,6 +37,7 @@ class SequenceAndUpdates extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   public getReferencedEntities(
     request: dialog.RequestGetReferencedEntitites,
     metadata?: Metadata,

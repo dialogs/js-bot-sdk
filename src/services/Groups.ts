@@ -5,12 +5,14 @@
 import { Metadata } from 'grpc';
 import { dialog } from '@dlghq/dialog-api';
 import Service, { Config } from './Service';
+import { TryCatchWrapper } from '../entities/utils';
 
 class Groups extends Service<any> {
   constructor(config: Config) {
     super(dialog.Groups, config);
   }
 
+  @TryCatchWrapper
   loadMembers(
     request: dialog.RequestLoadMembers,
     metadata?: Metadata,
@@ -22,6 +24,7 @@ class Groups extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   createGroup(
     request: dialog.RequestCreateGroup,
     metadata?: Metadata,
@@ -33,6 +36,7 @@ class Groups extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   editGroupTitle(
     request: dialog.RequestEditGroupTitle,
     metadata?: Metadata,
@@ -44,6 +48,7 @@ class Groups extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   editGroupAbout(
     request: dialog.RequestEditGroupAbout,
     metadata?: Metadata,
@@ -55,6 +60,7 @@ class Groups extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   inviteUser(
     request: dialog.RequestInviteUser,
     metadata?: Metadata,
@@ -66,6 +72,7 @@ class Groups extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   leaveGroup(
     request: dialog.RequestLeaveGroup,
     metadata?: Metadata,
@@ -77,6 +84,7 @@ class Groups extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   kickUser(
     request: dialog.RequestKickUser,
     metadata?: Metadata,
@@ -84,6 +92,7 @@ class Groups extends Service<any> {
     return this.service.kickUserAsync(request, metadata, this.getCallOptions());
   }
 
+  @TryCatchWrapper
   getGroupInviteUrl(
     request: dialog.RequestGetGroupInviteUrl,
     metadata?: Metadata,
@@ -95,6 +104,7 @@ class Groups extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   joinGroup(
     request: dialog.RequestJoinGroup,
     metadata?: Metadata,

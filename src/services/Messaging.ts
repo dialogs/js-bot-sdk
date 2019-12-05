@@ -5,12 +5,14 @@
 import { Metadata } from 'grpc';
 import { dialog } from '@dlghq/dialog-api';
 import Service, { Config } from './Service';
+import { TryCatchWrapper } from '../entities/utils';
 
 class Messaging extends Service<any> {
   constructor(config: Config) {
     super(dialog.Messaging, config);
   }
 
+  @TryCatchWrapper
   fetchDialogIndex(
     request: dialog.RequestFetchDialogIndex,
     metadata?: Metadata,
@@ -22,6 +24,7 @@ class Messaging extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   loadDialogs(
     request: dialog.RequestLoadDialogs,
     metadata?: Metadata,
@@ -33,6 +36,7 @@ class Messaging extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   sendMessage(
     request: dialog.RequestSendMessage,
     metadata?: Metadata,
@@ -44,6 +48,7 @@ class Messaging extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   updateMessage(
     request: dialog.RequestUpdateMessage,
     metadata?: Metadata,
@@ -55,6 +60,7 @@ class Messaging extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   loadHistory(
     request: dialog.RequestLoadHistory,
     metadata?: Metadata,
@@ -66,6 +72,7 @@ class Messaging extends Service<any> {
     );
   }
 
+  @TryCatchWrapper
   readMessage(
     request: dialog.RequestMessageRead,
     metadata?: Metadata,

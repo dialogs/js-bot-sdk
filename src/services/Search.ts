@@ -5,12 +5,14 @@
 import { Metadata } from 'grpc';
 import { dialog } from '@dlghq/dialog-api';
 import Service, { Config } from './Service';
+import { TryCatchWrapper } from '../entities/utils';
 
 class Search extends Service<any> {
   constructor(config: Config) {
     super(dialog.Search, config);
   }
 
+  @TryCatchWrapper
   resolvePeer(
     request: dialog.RequestResolvePeer,
     metadata?: Metadata,

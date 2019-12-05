@@ -54,3 +54,40 @@ export function longFromDate(date?: Date | null): Long {
 
   return Long.fromNumber(date.getTime());
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function TryCatchWrapper(
+  target: any,
+  propertyKey: string,
+  descriptor: any,
+) {
+  const fn = descriptor.value!;
+  descriptor.value = async function DescriptorValue(...args: any[]) {
+    let retries = 0;
+    while (this.retryOptions) {
+      try {
+        return await fn.apply(this, args);
+      } catch (error) {
+        if (retries < this.retryOptions.get('maxRetries')) {
+          console.log(error);
+          retries++;
+          let delay = Math.min(
+            this.retryOptions.get('minDelay') *
+              Math.pow(this.retryOptions.get('delayFactor'), retries),
+            this.retryOptions.get('maxDelay'),
+          );
+          await sleep(delay * 1000);
+        }
+        if (retries == this.retryOptions.get('maxRetries')) {
+          console.log('Max retries requests to server.');
+          throw error;
+        }
+      }
+    }
+    return await fn.apply(this, args);
+  };
+  return descriptor;
+}
