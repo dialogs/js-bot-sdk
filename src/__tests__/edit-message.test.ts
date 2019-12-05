@@ -30,6 +30,11 @@ testWithContext(
         bufferCount(2),
         first(),
         tap(([updateNew, updateEdit]) => {
+          if (updateNew.type === 'edit') {
+            const update = updateNew;
+            updateNew = updateEdit;
+            updateEdit = update;
+          }
           expect(updateNew).toBeTruthy();
           expect(updateNew.type).toBe('new');
           const message = updateNew.payload as Message;
