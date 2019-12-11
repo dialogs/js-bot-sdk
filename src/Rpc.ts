@@ -38,6 +38,7 @@ import fromReadStream from './utils/fromReadStream';
 import { getOpt, longFromDate } from './entities/utils';
 import { historyListModeToApi } from './entities/messaging/HistoryListMode';
 import { UnexpectedApiError } from './errors';
+import RetryOptions from './entities/RetryOptions';
 
 const pkg = require('../package.json');
 
@@ -52,7 +53,7 @@ type Config = {
   ssl?: SSLConfig;
   logger: Logger;
   endpoint: URL;
-  retryOptions?: Map<string, number>;
+  retryOptions?: RetryOptions;
 };
 
 class Rpc extends Services {

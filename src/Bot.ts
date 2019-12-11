@@ -46,13 +46,14 @@ import createImagePreview from './utils/createImagePreview';
 import normalizeArray from './utils/normalizeArray';
 import { SSLConfig } from './utils/createCredentials';
 import { PeerNotFoundError, MessageRejectedError } from './errors';
+import RetryOptions from './entities/RetryOptions';
 
 type Config = {
   token: Token;
   endpoints: Array<string>;
   ssl?: SSLConfig;
   loggerOptions?: LoggerOptions;
-  retryOptions?: Map<string, number>;
+  retryOptions?: RetryOptions;
 };
 
 class Bot {

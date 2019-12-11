@@ -71,20 +71,21 @@ export function TryCatchWrapper(
       try {
         return await fn.apply(this, args);
       } catch (error) {
-        if (retries < this.retryOptions.get('maxRetries')) {
+        if (retries <= this.retryOptions.maxRetries) {
           console.log(error);
-          retries++;
           let delay = Math.min(
-            this.retryOptions.get('minDelay') *
-              Math.pow(this.retryOptions.get('delayFactor'), retries),
-            this.retryOptions.get('maxDelay'),
+            this.retryOptions.minDelay *
+              Math.pow(this.retryOptions.delayFactor, retries),
+            this.retryOptions.maxDelay,
           );
+          console.log(delay);
           await sleep(delay * 1000);
         }
-        if (retries == this.retryOptions.get('maxRetries')) {
-          console.log('Max retries requests to server.');
+        if (retries == this.retryOptions.maxRetries) {
+          console.log('Max retries exceeded.');
           throw error;
         }
+        retries++;
       }
     }
     return await fn.apply(this, args);
