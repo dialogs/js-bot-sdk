@@ -81,7 +81,6 @@ class Bot {
     }
 
     this.logger = pino(config.loggerOptions);
-    console.log('config.ssl', config.ssl);
     this.rpc = new Rpc({
       endpoint,
       ssl: config.ssl,

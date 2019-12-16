@@ -16,7 +16,7 @@ import {
 import createLogInterceptor from './interceptors/logger';
 import RetryOptions from '../entities/RetryOptions';
 
-const DEFAULT_DEADLINE = 5 * 1000;
+const DEFAULT_DEADLINE = 30 * 1000;
 
 export type MetadataGenerator = (serviceUrl: string) => Promise<Metadata>;
 
@@ -80,9 +80,6 @@ abstract class Service<T extends Client> {
     deadline = this.deadline,
     authRequired = this.authRequired,
   }: CallOptionsConfig = {}): CallOptions {
-    console.log(Date.now());
-    console.log(deadline);
-    console.log(Date.now() + deadline);
     return {
       deadline: Date.now() + deadline,
       credentials: authRequired ? this.credentials : this.noopCredentials,
