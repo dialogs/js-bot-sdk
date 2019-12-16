@@ -54,18 +54,25 @@ type Config = {
   logger: Logger;
   endpoint: URL;
   retryOptions?: RetryOptions;
+  callOptions?: CallOptionsConfig;
+};
+
+type CallOptionsConfig = {
+  deadline?: number;
+  authRequired?: boolean;
 };
 
 class Rpc extends Services {
   private metadata: null | Promise<Metadata> = null;
 
-  constructor({ ssl, logger, endpoint, retryOptions }: Config) {
+  constructor({ ssl, logger, endpoint, retryOptions, callOptions }: Config) {
     super({
       logger,
       endpoint: endpoint.host,
       credentials: createCredentials(endpoint, ssl),
       generateMetadata: () => this.getMetadata(),
       retryOptions: retryOptions,
+      callOptions: callOptions,
     });
   }
 

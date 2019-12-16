@@ -16,7 +16,7 @@ import {
 import createLogInterceptor from './interceptors/logger';
 import RetryOptions from '../entities/RetryOptions';
 
-const DEFAULT_DEADLINE = 30 * 1000;
+const DEFAULT_DEADLINE = 5 * 1000;
 
 export type MetadataGenerator = (serviceUrl: string) => Promise<Metadata>;
 
@@ -26,9 +26,10 @@ export type Config = {
   credentials: ChannelCredentials;
   generateMetadata: MetadataGenerator;
   retryOptions?: RetryOptions;
+  callOptions?: CallOptionsConfig;
 };
 
-type CallOptionsConfig = {
+export type CallOptionsConfig = {
   deadline?: number;
   authRequired?: boolean;
 };
@@ -38,6 +39,8 @@ abstract class Service<T extends Client> {
   private readonly credentials: CallCredentials;
   private readonly noopCredentials: CallCredentials;
   private readonly retryOptions: RetryOptions | undefined;
+  private readonly deadline: number;
+  private authRequired: boolean;
 
   protected constructor(ServiceImpl: T, config: Config) {
     this.service = Bluebird.promisifyAll(
@@ -63,12 +66,23 @@ abstract class Service<T extends Client> {
     );
 
     this.retryOptions = config.retryOptions;
+    this.deadline =
+      config.callOptions && config.callOptions.deadline
+        ? config.callOptions.deadline
+        : DEFAULT_DEADLINE;
+    this.authRequired =
+      config.callOptions && config.callOptions.authRequired
+        ? config.callOptions.authRequired
+        : true;
   }
 
   protected getCallOptions({
-    deadline = DEFAULT_DEADLINE,
-    authRequired = true,
+    deadline = this.deadline,
+    authRequired = this.authRequired,
   }: CallOptionsConfig = {}): CallOptions {
+    console.log(Date.now());
+    console.log(deadline);
+    console.log(Date.now() + deadline);
     return {
       deadline: Date.now() + deadline,
       credentials: authRequired ? this.credentials : this.noopCredentials,

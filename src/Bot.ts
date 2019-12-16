@@ -54,6 +54,12 @@ type Config = {
   ssl?: SSLConfig;
   loggerOptions?: LoggerOptions;
   retryOptions?: RetryOptions;
+  callOptions?: CallOptionsConfig;
+};
+
+type CallOptionsConfig = {
+  deadline?: number;
+  authRequired?: boolean;
 };
 
 class Bot {
@@ -75,12 +81,13 @@ class Bot {
     }
 
     this.logger = pino(config.loggerOptions);
-
+    console.log('config.ssl', config.ssl);
     this.rpc = new Rpc({
       endpoint,
       ssl: config.ssl,
       logger: this.logger,
       retryOptions: config.retryOptions,
+      callOptions: config.callOptions,
     });
 
     this.ready = this.start(config.token);
