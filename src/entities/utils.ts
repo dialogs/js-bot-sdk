@@ -37,7 +37,7 @@ export function dateFromLong(time?: Long): Date {
 }
 
 export function dateFromTimestamp(ts?: google.protobuf.Timestamp | null): Date {
-  if (!ts) {
+  if (!ts || !ts.seconds || ts.nanos) {
     return new Date(0);
   }
 
