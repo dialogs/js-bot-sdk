@@ -20,7 +20,7 @@
   "author": "Nikita Gusakov <gusnkt@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@dlghq/dialog-api": "1.10.1",
+    "@dlghq/dialog-api": "1.54.0",
     "@grpc/proto-loader": "0.5.3",
     "@types/bluebird": "3.5.29",
     "@types/long": "4.0.0",
