@@ -34,7 +34,7 @@
     "jimp": "0.8.5",
     "lodash": "4.17.15",
     "mime": "2.4.4",
-    "node-fetch": "2.6.0",
+    "node-fetch": "2.6.1",
     "pino": "5.13.6",
     "pino-pretty": "3.2.2",
     "rxjs": "6.5.3",
