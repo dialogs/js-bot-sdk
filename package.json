@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/dotenv": "8.2.0",
-    "@types/jest": "24.0.23",
+    "@types/jest": "26.0.16",
     "buildbranch": "2.0.1",
     "dotenv": "8.2.0",
     "husky": "3.0.9",
